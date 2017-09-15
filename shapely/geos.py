@@ -56,6 +56,7 @@ def load_dll(libname, fallbacks=None, mode=DEFAULT_MODE):
                 libname, fallbacks or []))
 
 _lgeos = None
+is_conda = 'conda' in sys.version
 
 if sys.platform.startswith('linux'):
     # Test to see if we have a wheel repaired by 'auditwheel' containing its
@@ -130,8 +131,13 @@ elif sys.platform == 'win32':
             egg_dlls = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), 'DLLs'))
             if hasattr(sys, "frozen"):
-                wininst_dlls = os.path.normpath(
-                    os.path.abspath(sys.executable + '../../DLLS'))
+                if is_conda is False:
+                    wininst_dlls = os.path.normpath(
+                        os.path.abspath(sys.executable + '../../DLLS'))
+                else:
+                    # Frozen Anaconda
+                    wininst_dlls = os.path.normpath(
+                        os.path.abspath(os.path.dirname(sys.executable)))
             else:
                 wininst_dlls = os.path.abspath(os.__file__ + "../../../DLLs")
             original_path = os.environ['PATH']
